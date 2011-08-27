@@ -1,0 +1,543 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html>
+<head>
+<title>Ortaturk Online</title>
+<!--
+    Ortaturk Online
+    Copyright (C) 2011, V. Mireev
+
+    Это программа является свободным программным обеспечением. Вы можете 
+    распространять и/или модифицировать её согласно условиям Стандартной 
+    Общественной Лицензии GNU, опубликованной Фондом Свободного Программного 
+    Обеспечения, версии 3 или, по Вашему желанию, любой более поздней версии.
+
+    Эта программа распространяется в надежде, что она будет полезной, но БЕЗ 
+    ВСЯКИХ ГАРАНТИЙ, в том числе подразумеваемых гарантий ТОВАРНОГО СОСТОЯНИЯ ПРИ
+    ПРОДАЖЕ и ГОДНОСТИ ДЛЯ ОПРЕДЕЛЁННОГО ПРИМЕНЕНИЯ. Смотрите Стандартную
+    Общественную Лицензию GNU для получения дополнительной информации.
+    http://www.gnu.org/licenses/gpl-3.0.html
+
+    ****************************************************************************    
+    
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+-->
+</head>
+<body>
+
+<h2>Ортатюрк онлайн</h2>
+<p><b>Что это такое?</b>Настоящая программа представляет собой упрощенную версию разработки инициатора <a href="http://vkontakte.ru/album-21242429_135652078">языка "ортатюрк" Бахтиёра Каримова</a>, позволяющую производить компьютерный выбор среднетюркской лексики, основываясь на данных 25 тюркских языков с общей численностью говорящих более 160 млн человек. </p>
+
+<p>Для вычисления среднетюркских словоформ используются два параметра: численность говорящих и количество языков. Выбор состава звукотипов конкретного слова осуществляется по принципу большинства.</p>
+
+<p><b>Как использовать программу?</b> На входе подаются однокорневые слова в базовой латинице. Для тестирования нажмите кнопку ТЕСТ. Для запуска нажмите кнопку ОК. После этого появляется таблица. В ней жирным шрифтом выделены символы-"победители". Буквой L обозначена доля языков, в которых в данной позиции в данном слове используется данный символ. Аналогично P соответствует доле носителей языка.
+
+Для сброса значения полей перезагрузите страницу. </p>
+<hr/>
+
+<table>
+<tr valign="top">
+<td>
+    <form>
+        <table id="langs">
+            <tr><th>Язык</th><th>Носителей (млн)</th><th>%</th><th>Слово</th></tr>
+        </table>
+        <input type="button" value="ОК" onclick="compute()">
+        <input type="button" value="Test" onclick="putWords(testWords)">
+        <input type="button" value="Save" onclick="saveWords()">
+        <input type="button" value="Load" onclick="loadWords()">
+    </form>
+</td>
+<td>
+    <textarea id = "out" rows="10" cols="60" name="text"></textarea>
+    <div id="place"></div>
+</td>
+</tr>
+</table>
+
+<hr/>
+<table>
+<tr>
+    <td width="80%">
+        <p>Язык реализации - JavaScript.</p>
+        <p>Протестировано в Google Chrome 11.</p>
+    </td>
+    <td>
+        <p>Автор программы - В.Миреев.</p>
+        <p>Лицензия - GNU GPL3</p>
+    </td>
+</tr>
+</table>
+
+<script type="text/javascript">
+
+function clone(obj) {
+    var newObj;
+    if (obj instanceof Array)
+        newObj = [];
+    else
+        newObj = {};
+    for (var i in obj) {
+        if (obj[i] && typeof (obj[i]) == "object") 
+            newObj[i] = clone(obj[i]);
+        else 
+            newObj[i] = obj[i];
+    }
+    return newObj;
+}
+
+function toString(obj){
+    if (obj instanceof Array){
+        var objs = [];
+        for (var i in obj)
+            objs.push(toString(obj[i]));
+        return "[" + objs.join(", ") + "]";
+    }
+
+    if (obj instanceof Object){
+        var objs = [];
+        for (var i in obj)
+            objs.push([i + ": " + toString(obj[i])]);
+        return "{" + objs.join(", ") + "}";
+    }
+    
+    return obj.toString();
+}
+
+function round(f, p){
+    if (p == undefined)
+        p = 2;
+    var n = Math.pow(10, p);
+    return Math.round(f*n)/n;
+}
+
+function textNode(tag, txt){
+    var e = document.createElement(tag);
+    var txt = document.createTextNode(txt);
+    e.appendChild(txt);
+    return e;
+}
+
+function writeMessage(msg){
+    //var p = textNode('p', msg)
+    //document.body.appendChild(p);
+    document.getElementById("out").value = msg + "\n" + document.getElementById("out").value;
+}
+
+var languagesBase = [
+    {title: "Чувашский", num: 1.3},
+    {title: "Cаха", num: 0.5},
+    {title: "Татарский", num: 5.3},
+    {title: "Башкирский", num: 1.4},
+    {title: "Казахский", num: 14},
+    {title: "Узбекский", num: 28},
+    {title: "Туркменский", num: 6},
+    {title: "Азербайджанский", num: 29},
+    {title: "Турецкий", num: 60},
+    {title: "Крымскотатарский", num: 0.4},
+    {title: "Ногайский", num: 0.4},
+    {title: "Каракалпакский", num: 0.55},
+    {title: "Уйгурский", num: 10},
+    {title: "Кыргызский", num: 5},
+    {title: "Кумыкский", num: 0.45},
+    {title: "Карачаево-балкарский", num: 0.39},
+    {title: "Гагаузский", num: 0.23},
+    {title: "Тувинский", num: 0.28},
+    {title: "Хакасский", num: 0.07},
+    {title: "Алтайский", num: 0.065},
+    {title: "Урумский", num: 0.06},
+    {title: "Сибирско-татарский", num: 0.009611},
+    {title: "Караимский крымский", num: 0.000028},
+    {title: "Караимский галичский", num: 0.000012},
+    {title: "Караимский тракайский", num: 0.000060}, 
+    {title: "Шорский мрасский", num: 0.008},
+    {title: "Шорский кондомский", num: 0.008},
+    {title: "Чулымский (среднечулымский)", num: 0.00656},
+    {title: "Чулымский (нижнечулымский)", num: 0.0},
+    {title: "Тофаларский", num: 0.0003},
+    {title: "Крымчакский", num: 0.00001},
+    {title: "Саларский", num: 0.04}, 
+    {title: "Хорасано-тюркский", num: 0.4}, 
+    {title: "Халаджский", num: 0.002},
+    {title: "Сарыг-югурский", num: 0.0002},
+    {title: "Долганский", num: 0.003425},
+    {title: "Караханидско-уйгурский", num: 0.0},
+    {title: "Чагатайский", num: 0.0},
+    {title: "Хорезмско-тюркский (староузбекский)", num: 0.0},
+    {title: "Древне-булгарский", num: 0.0},
+    {title: "Древне-уйгурский", num: 0.0},
+    {title: "Древне-кыпчакский", num: 0.0},
+    {title: "Армяно-кыпчакский", num: 0.0},
+    {title: "Орхоно-енисейский", num: 0.0},
+    {title: "Средне-уйгурский", num: 0.0},
+    {title: "Средне-кыпчакский", num: 0.0},
+    {title: "Средне-огузский", num: 0.0},
+    {title: "Старо-османский", num: 0.0}
+    
+];
+
+function compareLangs (a, b){
+    if (a.num > b.num)
+        return -1;
+    if (a.num < b.num)
+        return 1;
+    return 0;
+}
+
+var languages = languagesBase.sort(compareLangs);
+
+var s = langSum();
+for (var i in languages){
+    languages[i].rel = round(languages[i].num*100 / s, 5);
+};
+
+function langSum(){
+    var sum = 0;
+    for (var i in languages)
+        sum += languages[i].num;
+    return sum;
+}
+
+var testWords = [
+    "ikke",
+    "ikki",
+    "ik0e",
+    "ik0e",
+    "ek0i",
+    "ikki",
+    "ik0i",
+    "ik0i",
+    "ik0i",
+    "ek0i",
+    "ek0i",
+    "ek0i"
+];
+
+function wordid(i){
+    return 'word_' + i;
+}
+
+function putWords(words){
+    /*
+    if (languages.length != words.length){
+        alert("Languages and words mismatch error");
+    }*/
+        
+    for (var i in words){
+        var word = words[i];
+        var e = document.getElementById(wordid(i));
+        e.value = word;
+    }
+}
+
+function getWords(){
+    var words = [];
+    for (var i = 0; i < languages.length; i++){
+        var e = document.getElementById(wordid(i));
+        words[i] = e.value;
+    }
+    return words;
+}
+
+function appendRow(parent, i, title, num, rel){
+    var tr = document.createElement('tr');
+
+    var td = textNode('td', title);
+    tr.appendChild(td);
+    
+    var td = textNode('td', num);
+    tr.appendChild(td);
+    
+    var td = textNode('td', rel);
+    tr.appendChild(td);
+    
+    var td = document.createElement('td');
+    var input = document.createElement('input');
+    input.setAttribute('type', 'text');
+    var id = wordid(i);
+    input.name = id;
+    input.id = id;
+    
+    td.appendChild(input);
+    tr.appendChild(td);
+    
+    parent.appendChild(tr);
+}
+
+function showLangs(){
+    var table = document.getElementById('langs');
+    
+    for (var i in languages){
+        var title = languages[i].title;
+        var num  = languages[i].num;
+        var rel  = languages[i].rel;
+        appendRow(table, i, title, num, rel);
+    }
+
+    writeMessage("Number of languages: " + languages.length);
+    writeMessage("Sum: " + round(langSum()));
+}
+
+function findPositions(len, words){
+    var positions = new Array(len);
+    for (var i = 0; i < len; i++)
+        positions[i] = {};
+        
+    for (var j in languages){
+        if (words[j].length == 0)
+            continue;
+            
+        for (var i = 0; i < len; i++){
+            var ch = words[j].charAt(i);
+            if (positions[i][ch] == undefined)
+                positions[i][ch] = [];
+            
+            positions[i][ch].push(j);
+        }
+    }
+    return positions;
+}
+
+function sortQueue(a, b){
+    if (a.nspeakers + a.nlangs > b.nspeakers + b.nlangs)
+        return -1;
+    if (a.nspeakers + a.nlangs < b.nspeakers + b.nlangs)
+        return 1;
+    return 0;
+/*
+    if (a.nlangs > b.nlangs)
+        return -1;
+    if (a.nspeakers > b.nspeakers)
+        return -1;
+    return 1;
+*/
+}
+
+function formatQueueitem(item){
+    var str = "P:" + 
+    //item.lstspeakers.join(" + ")+ " = "+ 
+    round(item.nspeakers, 3) + "%; L: " + round(item.nlangs, 3) + "%";
+    return str;
+}
+
+function findWinnerChar(i, chars, nwords){
+    var queue = [];
+    for (var ch in chars){
+        var langs = chars[ch];
+        var nlangs = langs.length * 100 / nwords;
+        var nspeakers = 0;
+        var lstspeakers = [];
+        
+        for (var j in langs){
+            var lang = languages[langs[j]];
+            nspeakers += lang.rel;
+            lstspeakers.push(lang.rel);
+        }
+        
+        queue.push({
+            ch: ch,
+            nspeakers: nspeakers,
+            lstspeakers: lstspeakers,
+            nlangs: nlangs
+        });        
+    }
+    
+    queue = queue.sort(sortQueue);
+    return queue;
+}
+
+function checkActive(words){
+    var activelanguages = 0;
+    var activespeakers = 0;
+    for (var j in languages)
+        if (words[j].length != 0){
+            activelanguages++;
+            activespeakers += languages[j].rel;
+        }
+
+    activelanguages = activelanguages *100 / languages.length;
+    writeMessage("Active languages: " + round(activelanguages, 3)+"%");
+    writeMessage("Active speakers: " + round(activespeakers, 3)+"%");
+    
+    if (activespeakers < 50)
+        writeMessage("Warning: not enough speakers.");
+        
+    if (activelanguages < 50)
+        writeMessage("Warning: not enough languages.");
+}
+
+function logWords(words){
+    for (var i in words)
+        if (words[i].length != 0)
+            writeMessage(languages[i].title + ": " + words[i]);
+}
+
+function nonZeroWord(word){
+    var res = false;
+    for (var i in word)
+        if (word.charAt(i) != '0'){
+            res = true;
+            break;
+        }
+    return res;
+}
+
+function compute(){
+    var words = getWords();
+    var nchars = 0;
+    for (var i in words){
+        nchars = Math.max(nchars, words[i].length);
+    }
+    
+    var nonemptywords = 0;
+    for (var j in languages)
+        if (words[j].length != 0)
+            nonemptywords++;
+    
+    if (nonemptywords == 0){
+        writeMessage("i've got no words!");
+        return;
+    }
+    
+    checkActive(words);
+    logWords(words);
+    
+    var positions = findPositions(nchars, words);
+
+    var queues = [];
+    var chars = new Array(nchars);
+    var chars2 = new Array(nchars);
+    
+    for (var i = 0; i < nchars; i++){
+        var queue = findWinnerChar(i, positions[i], nonemptywords);
+        queues.push(queue);
+        var ch = queue[0].ch;
+        chars.push(ch);
+        
+        if (queue.length > 1){
+            var ch2 = queue[1].ch;
+            chars2.push(ch2);
+        }
+    }
+    var newword = chars.join("");
+    if (!nonZeroWord(newword))
+        newword = chars2.join("");
+        
+    writeMessage("ОТВЕТ: " + newword);
+    
+    checkWord(words, newword);
+    showWords(nchars, words, newword, queues);
+}
+
+function checkWord(words, newword){
+    var newspeakers = 0;
+    var newlangs = 0;
+    for (var i in words){
+        if (newword == words[i]){
+            newspeakers += languages[i].num;
+            newlangs++;
+        }
+    }
+    if (newlangs > 0)
+        writeMessage("This word is used in " + newlangs + " language(s) by " + round(newspeakers, 5) + " speakers");
+    writeMessage("*****");
+}
+
+function resetPlaceholder(){
+    var place = document.getElementById("place");
+    if (place.firstChild)
+        place.removeChild(place.firstChild);
+}
+
+function showWords(nchars, words, newword, queues){
+    resetPlaceholder();
+    var place = document.getElementById("place");
+    var table = document.createElement("table");
+    table.setAttribute("border", "1")
+    place.appendChild(table);
+    
+    var row = table.insertRow(-1);
+
+    var cell = row.insertCell(-1);
+    var txt = document.createTextNode("Язык");
+    cell.appendChild(txt);
+    
+    for (var i = 0; i < nchars; i++){
+        var cell = row.insertCell(-1);
+        var txt = document.createTextNode("Фонема " + (i+1));
+        cell.appendChild(txt);
+        cell.setAttribute("width", "100");
+    }
+    
+    for (var i in words){
+        if (words[i].length == 0)
+            continue;
+        var row = table.insertRow(-1);
+
+        var cell = row.insertCell(-1);
+        var txt = document.createTextNode(languages[i].title);
+        cell.appendChild(txt);
+        
+        for (var j = 0; j < words[i].length; j++){
+            var ch = words[i].charAt(j);
+            var cell = row.insertCell(-1);
+            if (newword.charAt(j) == ch){
+                var b = document.createElement("b")
+                var txt = document.createTextNode(ch);
+                b.appendChild(txt)
+                cell.appendChild(b);
+            }else{
+                var txt = document.createTextNode(ch);
+                cell.appendChild(txt);
+            }
+        }
+    }
+    
+    var row = table.insertRow(-1);
+    var cell = row.insertCell(-1);
+    var txt = document.createTextNode("STAT");
+    cell.appendChild(txt);
+
+    for (var i = 0; i < nchars; i++){
+        var cell = row.insertCell(-1);
+        cell.setAttribute("valign", "top");
+        var str = "";
+        for (var j in queues[i]){
+            var item = queues[i][j];
+            var txt = textNode("p", item.ch 
+                      + ": " + formatQueueitem(item));
+            cell.appendChild(txt);
+        }
+        
+    }
+}
+
+function saveWords(){
+    var words = getWords();
+    var str = words[0];
+    for (var i = 1; i < words.length; i++)
+        str += "\t" + words[i];
+    prompt("Copy words with Ctrl-C", str);
+}
+
+function loadWords(){
+    var str = prompt("Paste words with Ctrl-V");
+    var words = str.split("\t");
+    if (words.length > 1)
+        putWords(words);
+    else
+        alert("Not enough words" + words);
+}
+
+
+showLangs();
+</script>
+</body>
+</html>
