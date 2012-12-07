@@ -3,79 +3,78 @@
 <head>
 <meta charset="utf-8"/>
 <title>Ortaturk Online</title>
-<!--
-    Ortaturk Online
-    Copyright (C) 2011, V. Mireev
-
-    Это программа является свободным программным обеспечением. Вы можете 
-    распространять и/или модифицировать её согласно условиям Стандартной 
-    Общественной Лицензии GNU, опубликованной Фондом Свободного Программного 
-    Обеспечения, версии 3 или, по Вашему желанию, любой более поздней версии.
-
-    Эта программа распространяется в надежде, что она будет полезной, но БЕЗ 
-    ВСЯКИХ ГАРАНТИЙ, в том числе подразумеваемых гарантий ТОВАРНОГО СОСТОЯНИЯ ПРИ
-    ПРОДАЖЕ и ГОДНОСТИ ДЛЯ ОПРЕДЕЛЁННОГО ПРИМЕНЕНИЯ. Смотрите Стандартную
-    Общественную Лицензию GNU для получения дополнительной информации.
-    http://www.gnu.org/licenses/gpl-3.0.html
-
-    ****************************************************************************    
+    <link href="http://twitter.github.com/bootstrap/assets/css/bootstrap.css" rel="stylesheet">
+    <script type="text/javascript" src="http://twitter.github.com/bootstrap/assets/js/jquery.js"></script>
+    <script type="text/javascript" src="http://twitter.github.com/bootstrap/assets/js/bootstrap-tab.js"></script>
+    <style type="text/css">
     
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
--->
+    body {
+        padding-top: 60px;
+        padding-bottom: 40px;
+    }
+     
+    .sidebar-nav {
+        padding: 9px 0;
+    }
+    
+    thead {
+        font-weight: bold
+    }
+    
+    </style>
 </head>
 <body>
-
-<h2>Ортатюрк онлайн</h2>
-<p><b>Что это такое?</b>Настоящая программа представляет собой упрощенную версию разработки инициатора <a href="http://vkontakte.ru/album-21242429_135652078">языка "ортатюрк" Бахтиёра Каримова</a>, позволяющую производить компьютерный выбор среднетюркской лексики, основываясь на данных 25 тюркских языков с общей численностью говорящих более 160 млн человек. </p>
-
-<p>Для вычисления среднетюркских словоформ используются два параметра: численность говорящих и количество языков. Выбор состава звукотипов конкретного слова осуществляется по принципу большинства.</p>
-
-<p><b>Как использовать программу?</b> На входе подаются однокорневые слова в базовой латинице. Для тестирования нажмите кнопку ТЕСТ. Для запуска нажмите кнопку ОК. После этого появляется таблица. В ней жирным шрифтом выделены символы-"победители". Буквой L обозначена доля языков, в которых в данной позиции в данном слове используется данный символ. Аналогично P соответствует доле носителей языка.
-
-Для сброса значения полей перезагрузите страницу. </p>
-<hr/>
-
-<table>
-<tr valign="top">
-<td>
-    <form>
-        <table id="langs">
-            <tr><th>Язык</th><th>Носителей (млн)</th><th>%</th><th>Слово</th></tr>
+    <div class="navbar navbar-fixed-top">
+      <div class="navbar-inner">
+        <div class="container">
+          <a class="brand">Ортатюрк онлайн</a>
+        </div>
+      </div>
+    </div>
+    <div class="container">
+    
+<div class="bs-docs-example">
+    <ul class="nav nav-tabs">
+      <li class="active"><a href="#home" data-toggle="tab">Ввод данных</a></li>
+      <li class=""><a href="#output" data-toggle="tab">Результат</a></li>
+      <li class=""><a href="#help" data-toggle="tab">Помощь</a></li>
+    </ul>
+    <div class="tab-content">
+      <div class="tab-pane fade active in" id="home">
+        <input class="btn btn-primary" type="button" value="Посчитать" onclick="compute()">
+        <input class="btn btn-success" type="button" value="Сохранить" onclick="saveWords()">
+        <input class="btn btn-success" type="button" value="Загрузить" onclick="loadWords()">
+        <a class="btn btn-info" href="https://github.com/ambientlighter/Ortaturk/issues">Сообщить об ошибке</a>
+        <input type="button" class="btn btn-info" value="Тестирование" onclick="putWords(testWords)">
+        <table class="table table-hover">
+            <thead>
+                <th>Язык</th>
+                <th>Носителей (млн)</th>
+                <th>%</th>
+                <th>Слово</th>
+            </thead>
+            <tbody id="langs">
+            </tbody>
         </table>
-        <input type="button" value="ОК" onclick="compute()">
-        <!--<input type="button" value="Test" onclick="putWords(testWords)">-->
-        <input type="button" value="Save" onclick="saveWords()">
-        <input type="button" value="Load" onclick="loadWords()">
-    </form>
-</td>
-<td>
-    <textarea id = "out" rows="10" cols="60" name="text"></textarea>
-    <div id="place"></div>
-</td>
-</tr>
-</table>
+      </div>
+      <div class="tab-pane fade" id="output">
+            <div id="place"></div>
+      </div>
+      <div class="tab-pane fade" id="help">
+        <h4>О программе</h4>
+        <p>Настоящая программа представляет собой упрощенную версию разработки инициатора <a href="http://vkontakte.ru/album-21242429_135652078">языка "ортатюрк" Бахтиёра Каримова</a>, позволяющую производить компьютерный выбор среднетюркской лексики, основываясь на данных 25 тюркских языков с общей численностью говорящих более 160 млн человек. </p> <p>Для вычисления среднетюркских словоформ используются два параметра: численность говорящих и количество языков. Выбор состава звукотипов конкретного слова осуществляется по принципу большинства.</p>
 
-<hr/>
-<table>
-<tr>
-    <td width="80%">
-        <p>Язык реализации - JavaScript.</p>
-        <p>Протестировано в Google Chrome 11.</p>
-    </td>
-    <td>
-        <p>Автор программы - В.Миреев.</p>
-        <p>Лицензия - GNU GPL3</p>
-    </td>
-</tr>
-</table>
+        <h4>Правила использования</h4>
+        <p>На входе подаются однокорневые слова в базовой латинице. Для тестирования нажмите кнопку ТЕСТ. Для запуска нажмите кнопку ОК. После этого появляется таблица. В ней жирным шрифтом выделены символы-"победители". Буквой L обозначена доля языков, в которых в данной позиции в данном слове используется данный символ. Аналогично P соответствует доле носителей языка. Для сброса значения полей перезагрузите страницу. </p>
+        
+        <h4>Лицензия</h4>
+        <p>Ortaturk Online (C) 2011-2013, Миреев Виктор Вадимович</p>
+        <p>Это программа является свободным программным обеспечением. Вы можете распространять и/или модифицировать её согласно условиям Стандартной Общественной Лицензии GNU, опубликованной Фондом Свободного Программного Обеспечения, версии 3 или, по Вашему желанию, любой более поздней версии.</p>
+        <p>Эта программа распространяется в надежде, что она будет полезной, но БЕЗ ВСЯКИХ ГАРАНТИЙ, в том числе подразумеваемых гарантий ТОВАРНОГО СОСТОЯНИЯ ПРИ ПРОДАЖЕ и ГОДНОСТИ ДЛЯ ОПРЕДЕЛЁННОГО ПРИМЕНЕНИЯ. Смотрите <a href="http://www.gnu.org/licenses/gpl-3.0.html">Стандартную Общественную Лицензию GNU</a> для получения дополнительной информации. </p>
+      </div>
+    </div>
+</div>
+</div>
 
 <script type="text/javascript">
 
@@ -119,17 +118,9 @@ function round(f, p){
     return Math.round(f*n)/n;
 }
 
-function textNode(tag, txt){
-    var e = document.createElement(tag);
-    var txt = document.createTextNode(txt);
-    e.appendChild(txt);
-    return e;
-}
-
 function writeMessage(msg){
-    //var p = textNode('p', msg)
-    //document.body.appendChild(p);
-    document.getElementById("out").value = msg + "\n" + document.getElementById("out").value;
+    var p = $("<p>").text(msg);
+    $("#place").append(p);
 }
 
 var languagesBase = [
@@ -228,11 +219,6 @@ function wordid(i){
 }
 
 function putWords(words){
-    /*
-    if (languages.length != words.length){
-        alert("Languages and words mismatch error");
-    }*/
-        
     for (var i in words){
         var word = words[i];
         var e = document.getElementById(wordid(i));
@@ -242,46 +228,27 @@ function putWords(words){
 
 function getWords(){
     var words = [];
-    for (var i = 0; i < languages.length; i++){
-        var e = document.getElementById(wordid(i));
-        words[i] = e.value;
-    }
+    for (var i in languages)
+        words.push($("#word_"+i).val());
     return words;
 }
 
-function appendRow(parent, i, title, num, rel){
-    var tr = document.createElement('tr');
-
-    var td = textNode('td', title);
-    tr.appendChild(td);
-    
-    var td = textNode('td', num);
-    tr.appendChild(td);
-    
-    var td = textNode('td', rel);
-    tr.appendChild(td);
-    
-    var td = document.createElement('td');
-    var input = document.createElement('input');
-    input.setAttribute('type', 'text');
-    var id = wordid(i);
-    input.name = id;
-    input.id = id;
-    
-    td.appendChild(input);
-    tr.appendChild(td);
-    
-    parent.appendChild(tr);
-}
-
 function showLangs(){
-    var table = document.getElementById('langs');
+    var table = $("#langs");
     
     for (var i in languages){
-        var title = languages[i].title;
-        var num  = languages[i].num;
-        var rel  = languages[i].rel;
-        appendRow(table, i, title, num, rel);
+        var tr = $('<tr>');
+        $('<td>').text(languages[i].title).appendTo(tr);
+        $('<td>').text(languages[i].num).appendTo(tr);
+        $('<td>').text(languages[i].rel).appendTo(tr);
+        
+        var input = $('<input>')
+                    .attr('type', 'text')
+                    .attr('name', wordid(i))
+                    .attr('id', wordid(i));
+        $('<td>').append(input).appendTo(tr);
+
+        table.append(tr);
     }
 
     writeMessage("Number of languages: " + languages.length);
@@ -314,27 +281,13 @@ function sortQueue(a, b){
     if (a.nspeakers + a.nlangs < b.nspeakers + b.nlangs)
         return 1;
     return 0;
-/*
-    if (a.nlangs > b.nlangs)
-        return -1;
-    if (a.nspeakers > b.nspeakers)
-        return -1;
-    return 1;
-*/
-}
-
-function formatQueueitem(item){
-    var str = "P:" + 
-    //item.lstspeakers.join(" + ")+ " = "+ 
-    round(item.nspeakers, 3) + "%; L: " + round(item.nlangs, 3) + "%";
-    return str;
 }
 
 function findWinnerChar(i, chars, nwords){
     var queue = [];
     for (var ch in chars){
         var langs = chars[ch];
-        var nlangs = langs.length * 100 / nwords;
+        var nlangs = langs.length * 100 / languages.length;
         var nspeakers = 0;
         var lstspeakers = [];
         
@@ -376,12 +329,6 @@ function checkActive(words){
         writeMessage("Warning: not enough languages.");
 }
 
-function logWords(words){
-    for (var i in words)
-        if (words[i].length != 0)
-            writeMessage(languages[i].title + ": " + words[i]);
-}
-
 function nonZeroWord(word){
     var res = false;
     for (var i in word)
@@ -393,6 +340,7 @@ function nonZeroWord(word){
 }
 
 function compute(){
+    $("#place").empty();
     var words = getWords();
     var nchars = 0;
     for (var i in words){
@@ -400,9 +348,11 @@ function compute(){
     }
     
     var nonemptywords = 0;
-    for (var j in languages)
-        if (words[j].length != 0)
+    for (var i in words)
+        if (words[i].length != 0){
             nonemptywords++;
+            writeMessage(languages[i].title + ": " + words[i]);
+        }
     
     if (nonemptywords == 0){
         writeMessage("i've got no words!");
@@ -410,8 +360,6 @@ function compute(){
     }
     
     checkActive(words);
-    logWords(words);
-    
     var positions = findPositions(nchars, words);
 
     var queues = [];
@@ -436,7 +384,8 @@ function compute(){
     writeMessage("ОТВЕТ: " + newword);
     
     checkWord(words, newword);
-    showWords(nchars, words, newword, queues);
+    var data = prepareTable(nchars, words, newword, queues);
+    formatTable(data, $("#place"));
 }
 
 function checkWord(words, newword){
@@ -450,76 +399,53 @@ function checkWord(words, newword){
     }
     if (newlangs > 0)
         writeMessage("This word is used in " + newlangs + " language(s) by " + round(newspeakers, 5) + " speakers");
-    writeMessage("*****");
 }
 
-function resetPlaceholder(){
-    var place = document.getElementById("place");
-    if (place.firstChild)
-        place.removeChild(place.firstChild);
-}
-
-function showWords(nchars, words, newword, queues){
-    resetPlaceholder();
-    var place = document.getElementById("place");
-    var table = document.createElement("table");
-    table.setAttribute("border", "1")
-    place.appendChild(table);
+function prepareTable(nchars, words, newword, queues){
+    var table = [];
     
-    var row = table.insertRow(-1);
-
-    var cell = row.insertCell(-1);
-    var txt = document.createTextNode("Язык");
-    cell.appendChild(txt);
-    
-    for (var i = 0; i < nchars; i++){
-        var cell = row.insertCell(-1);
-        var txt = document.createTextNode("Фонема " + (i+1));
-        cell.appendChild(txt);
-        cell.setAttribute("width", "100");
-    }
+    var row = ["Язык"];
+    for (var i = 0; i < nchars; i++)
+        row.push("Фонема " + (i+1));
+    table.push(row);
     
     for (var i in words){
         if (words[i].length == 0)
             continue;
-        var row = table.insertRow(-1);
-
-        var cell = row.insertCell(-1);
-        var txt = document.createTextNode(languages[i].title);
-        cell.appendChild(txt);
         
-        for (var j = 0; j < words[i].length; j++){
-            var ch = words[i].charAt(j);
-            var cell = row.insertCell(-1);
-            if (newword.charAt(j) == ch){
-                var b = document.createElement("b")
-                var txt = document.createTextNode(ch);
-                b.appendChild(txt)
-                cell.appendChild(b);
-            }else{
-                var txt = document.createTextNode(ch);
-                cell.appendChild(txt);
-            }
-        }
+        var row = [languages[i].title];
+        for (var j = 0; j < nchars; j++)
+            row.push(words[i].charAt(j));
+        table.push(row);
     }
     
-    var row = table.insertRow(-1);
-    var cell = row.insertCell(-1);
-    var txt = document.createTextNode("STAT");
-    cell.appendChild(txt);
+    var row = ["STAT"];
 
     for (var i = 0; i < nchars; i++){
-        var cell = row.insertCell(-1);
-        cell.setAttribute("valign", "top");
-        var str = "";
+        var s = "";
         for (var j in queues[i]){
-            var item = queues[i][j];
-            var txt = textNode("p", item.ch 
-                      + ": " + formatQueueitem(item));
-            cell.appendChild(txt);
+            s += queues[i][j].ch + ": " +
+                "P: " + round(queues[i][j].nspeakers, 3) + "%; " +
+                "L: " + round(queues[i][j].nlangs, 3) + "%"+ "<br>";
         }
-        
+        row.push(s)
     }
+    table.push(row);
+    return table;
+}
+
+function formatTable(data, placeholder){
+    var table = $("<table>").attr("class", "table table-hover");
+    for (var i = 0; i < data.length; i++){
+        var row = $("<tr>");
+        for (var j = 0; j < data[i].length; j++){
+            var text = data[i][j];
+            var cell = $("<td>").html(text);
+            row.append(cell);
+        }
+        table.append(row);
+    }
+    placeholder.append(table);
 }
 
 function saveWords(){
