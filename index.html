@@ -246,6 +246,16 @@ function showLangs(){
                     .attr('type', 'text')
                     .attr('name', wordid(i))
                     .attr('id', wordid(i));
+        
+        var storedValue = localStorage.getItem(wordid(i));
+        input.val(storedValue);
+        
+        (function (i){
+            input.keydown(function(){
+                localStorage.setItem(wordid(i), $(this).val());
+            });
+        })(i);
+        
         $('<td>').append(input).appendTo(tr);
 
         table.append(tr);
