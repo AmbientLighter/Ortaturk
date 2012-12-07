@@ -251,7 +251,7 @@ function showLangs(){
         input.val(storedValue);
         
         (function (i){
-            input.keydown(function(){
+            input.bind('keyup change', function(){
                 localStorage.setItem(wordid(i), $(this).val());
             });
         })(i);
