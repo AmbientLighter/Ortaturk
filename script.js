@@ -91,14 +91,14 @@ var Languages = {
 
 var languages = Languages.relational();
 
-function Item(char){
+function Char(char){
     this.nspeakers = 0;
     this.nlangs = 0;
     this.languages = [];
     this.ch = char;
 }
 
-Item.prototype = {
+Char.prototype = {
     addLanguage: function (language){
         this.languages.push(language);
     },
@@ -115,56 +115,51 @@ Item.prototype = {
 
 function Calculator(words){
     this.words = words;
-    this.rows = this.countWords();
-    this.cols = this.countChars();
+    this.wordLength = this.getWordLength();
 }
 
 Calculator.prototype = {
 
     createReport: function(){
-        var queues = this.getQueues(this.words);
-        var newword = this.calcNewWord(queues);
+        var chars = this.getChars(this.words);
+        var word = this.createWord(chars);
 
         return {
             activelanguages: this.countActiveLanguages(),
             activespeakers: this.countActiveSpeakers(),
-            newlangs: this.countWordLanguages(newword),
-            newspeakers: this.countWordSpeakers(newword),
-            queues: queues,
-            newword: newword,
-            rows: this.rows,
-            cols: this.cols,
+            newlangs: this.countWordLanguages(word),
+            newspeakers: this.countWordSpeakers(word),
+            queues: chars,
+            newword: word,
+            wordLength: this.wordLength,
             words: this.words
         }
     },
 
-    getQueues: function() {
+    getChars: function() {
         var columns = [];
 
-        for (var i = 0; i < this.cols; i++){
-            var items = {};
+        for (var i = 0; i < this.wordLength; i++){
+            var chars = {};
 
-            for (var j in languages){
-                var language = languages[j];
-                var word = this.words[j];
-
-                if (word.length == 0)
-                    continue;
+            for (var j in this.words){
+                var language = this.words[j].language;
+                var word = this.words[j].word;
 
                 var ch = word.charAt(i);
-                if (items[ch] == undefined)
-                    items[ch] = new Item(ch);
-                
-                items[ch].addLanguage(language);
+                if (chars[ch] == undefined)
+                    chars[ch] = new Char(ch);
+
+                chars[ch].addLanguage(language);
             }
 
             var column = [];
-            for (var ch in items){
-                var item = items[ch];
+            for (var ch in chars){
+                var item = chars[ch];
                 item.compute();
                 column.push(item);
             }
-        
+
             column = _.sortBy(column, function(item){
                 return -item.nspeakers-item.nlangs;
             });
@@ -173,25 +168,23 @@ Calculator.prototype = {
         return columns;
     },
 
-    calcNewWord: function (queues){
-        var chars = new Array(this.cols);
-        for (var i in queues){
-            var queue = queues[i];
-            var ch = queue[0].ch;
-            chars.push(ch);
+    createWord: function (chars){
+        var items = new Array(this.wordLength);
+        for (var i in chars){
+            items.push(chars[i][0].ch);
         }
-        var newword = chars.join("");
+        var newword = items.join("");
 
         if (!this.nonZeroWord(newword)){
-            chars = new Array(this.cols);
-            for (var i in queues){
-                var queue = queues[i];
+            items = new Array(this.wordLength);
+            for (var i in chars){
+                var queue = chars[i];
                 if (queue.length > 1){
                     var ch = queue[1].ch;
-                    chars.push(ch);
+                    items.push(ch);
                 }
             }
-            newword = chars.join("");
+            newword = items.join("");
         }
         return newword;
     },
@@ -207,30 +200,21 @@ Calculator.prototype = {
     },
 
     countActiveLanguages: function (){
-        var result = 0;
-        for (var j in languages)
-            if (this.words[j].length != 0){
-                result++;
-            }
-
-        result = result * 100 / languages.length;
-        return result
+        return this.words.length * 100 / languages.length;
     },
 
     countActiveSpeakers: function() {
         var result = 0;
-        for (var j in languages)
-            if (this.words[j].length != 0){
-                result += languages[j].rel;
-            }
+        for (var j in this.words)
+            result += this.words[j].language.rel;
         return result;
     },
 
     countWordSpeakers: function(newword) {
         var result = 0;
         for (var i in this.words){
-            if (newword == this.words[i]){
-                result += languages[i].num;
+            if (newword == this.words[i].word){
+                result += this.words[i].language.num;
             }
         }
         return round(result, 5);
@@ -239,28 +223,20 @@ Calculator.prototype = {
     countWordLanguages: function(newword) {
         var result = 0;
         for (var i in this.words){
-            if (newword == this.words[i]){
+            if (newword == this.words[i].word){
                 result++;
             }
         }
         return result;
     },
 
-    countWords: function() {
-        var result = 0;
-        for (var i in this.words)
-            if (this.words[i].length != 0){
-                result++;
-            }
-        return result;
-    },
-
-    countChars: function (){
-        var result = 0;
+    getWordLength: function (){
+        var length = 0;
         for (var i in this.words){
-            result = Math.max(result, this.words[i].length);
+            var item = this.words[i];
+            length = Math.max(length, item.word.length);
         }
-        return result;
+        return length;
     }
 }
 
@@ -284,7 +260,8 @@ var InputView = {
         var words = [];
         for (var i in languages){
             var word = $("#word_"+i).val();
-            words.push(word);
+            if (word.length > 0)
+                words.push(new Word(word, languages[i]));
         }
         return words;
     },
@@ -357,23 +334,21 @@ var ReportView = {
         var table = new TableView();
 
         var row = ["Язык"];
-        for (var i = 0; i < report.cols; i++)
+        for (var i = 0; i < report.wordLength; i++)
             row.push("Фонема " + (i+1));
         table.addRow(row);
 
         for (var i in report.words){
-            if (report.words[i].length == 0)
-                continue;
-            
-            var row = [languages[i].title];
-            for (var j = 0; j < report.cols; j++)
-                row.push(report.words[i].charAt(j));
+            var item = report.words[i];
+            var row = [item.language.title];
+            for (var j = 0; j < report.wordLength; j++)
+                row.push(item.word.charAt(j));
             table.addRow(row);
         }
         
         var row = ["STAT"];
 
-        for (var i = 0; i < report.cols; i++){
+        for (var i = 0; i < report.wordLength; i++){
             var s = "";
             for (var j in report.queues[i]){
                 s += report.queues[i][j].ch + ": " +
@@ -416,28 +391,15 @@ TableView.prototype = {
 var App = {
     compute: function (){
         var words = InputView.getWords();
-        var calc = new Calculator(words);
         
-        if (calc.rows == 0){
+        if (words.length == 0){
             ReportView.error();
             return;
         }
+
+        var calc = new Calculator(words);
         var report = calc.createReport();
         ReportView.render(report);
-    },
-
-    save: function (){
-        var words = InputView.getWords();
-        prompt("Copy words with Ctrl-C", words.join("\t"));
-    },
-
-    load: function (){
-        var str = prompt("Paste words with Ctrl-V");
-        var words = str.split("\t");
-        if (words.length > 1)
-            InputView.putWords(words);
-        else
-            alert("Not enough words" + words);
     },
 
     test: function(){
@@ -463,8 +425,6 @@ var App = {
 function main(){
     InputView.render();
     $("#compute").click(App.compute);
-    $("#save").click(App.save);
-    $("#load").click(App.load);
     $("#test").click(App.test);
 }
 
