@@ -121,6 +121,23 @@ function Calculator(words){
 
 Calculator.prototype = {
 
+    createReport: function(){
+        var queues = this.getQueues(this.words);
+        var newword = this.calcNewWord(queues);
+
+        return {
+            activelanguages: this.countActiveLanguages(),
+            activespeakers: this.countActiveSpeakers(),
+            newlangs: this.countWordLanguages(newword),
+            newspeakers: this.countWordSpeakers(newword),
+            queues: queues,
+            newword: newword,
+            rows: this.rows,
+            cols: this.cols,
+            words: this.words
+        }
+    },
+
     getQueues: function() {
         var columns = [];
 
@@ -247,6 +264,11 @@ Calculator.prototype = {
     }
 }
 
+function Word(word, language){
+    this.word = word;
+    this.language = language;
+}
+
 var InputView = {
     wordid: function (i){
         return 'word_' + i;
@@ -260,8 +282,10 @@ var InputView = {
 
     getWords: function (){
         var words = [];
-        for (var i in languages)
-            words.push($("#word_"+i).val());
+        for (var i in languages){
+            var word = $("#word_"+i).val();
+            words.push(word);
+        }
         return words;
     },
 
@@ -307,7 +331,6 @@ var ReportView = {
 
     render: function(report){
         this.clean();
-        // this.writeWords(report.words);
 
         this.write("Active languages: " + round(report.activelanguages, 3)+"%");
         if (report.activelanguages < 50)
@@ -322,29 +345,22 @@ var ReportView = {
         if (report.newlangs > 0)
             this.write("This word is used in " + report.newlangs + " language(s) by " + report.newspeakers + " speakers");
 
-        var data = this.prepareTable(report);
-        this.renderTable(data);
+        var table = this.buildTable(report);
+        table.render($("#place"));
     },
 
     write: function (msg){
         $("<p>").text(msg).appendTo($("#place"));
     },
 
-    writeWords: function (words){
-        for (var i in words)
-            if (words[i].length != 0){
-                this.write(languages[i].title + ": " + words[i]);
-            }
-    },
+    buildTable: function (report){
+        var table = new TableView();
 
-    prepareTable: function (report){
-        var table = [];
-        
         var row = ["Язык"];
         for (var i = 0; i < report.cols; i++)
             row.push("Фонема " + (i+1));
-        table.push(row);
-        
+        table.addRow(row);
+
         for (var i in report.words){
             if (report.words[i].length == 0)
                 continue;
@@ -352,7 +368,7 @@ var ReportView = {
             var row = [languages[i].title];
             for (var j = 0; j < report.cols; j++)
                 row.push(report.words[i].charAt(j));
-            table.push(row);
+            table.addRow(row);
         }
         
         var row = ["STAT"];
@@ -366,22 +382,34 @@ var ReportView = {
             }
             row.push(s)
         }
-        table.push(row);
+        table.addRow(row);
         return table;
+    }
+}
+
+function TableView(){
+    this.rows = [];
+}
+
+TableView.prototype = {
+    addRow: function(row){
+        this.rows.push(row);
     },
 
-    renderTable: function (data){
+    render: function(placeholder){
         var table = $("<table>").attr("class", "table table-hover");
-        for (var i = 0; i < data.length; i++){
-            var row = $("<tr>");
-            for (var j = 0; j < data[i].length; j++){
-                var text = data[i][j];
-                var cell = $("<td>").html(text);
-                row.append(cell);
-            }
-            table.append(row);
+        for (var i in this.rows){
+            this.renderRow(this.rows[i]).appendTo(table);
         }
-        $("#place").append(table);
+        placeholder.append(table);
+    },
+
+    renderRow: function(cells){
+        var row = $("<tr>");
+        for (var col in cells){
+            $("<td>").html(cells[col]).appendTo(row);
+        }
+        return row;
     }
 }
 
@@ -394,21 +422,8 @@ var App = {
             ReportView.error();
             return;
         }
-
-        var queues = calc.getQueues(words);
-        var newword = calc.calcNewWord(queues);
-
-        ReportView.render({
-            activelanguages: calc.countActiveLanguages(),
-            activespeakers: calc.countActiveSpeakers(),
-            newlangs: calc.countWordLanguages(newword),
-            newspeakers: calc.countWordSpeakers(newword),
-            queues: queues,
-            newword: newword,
-            rows: calc.rows,
-            cols: calc.cols,
-            words: words
-        });
+        var report = calc.createReport();
+        ReportView.render(report);
     },
 
     save: function (){
