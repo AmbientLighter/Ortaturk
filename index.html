@@ -81,39 +81,6 @@
 
 <script type="text/javascript">
 
-function clone(obj) {
-    var newObj;
-    if (obj instanceof Array)
-        newObj = [];
-    else
-        newObj = {};
-    for (var i in obj) {
-        if (obj[i] && typeof (obj[i]) == "object") 
-            newObj[i] = clone(obj[i]);
-        else 
-            newObj[i] = obj[i];
-    }
-    return newObj;
-}
-
-function toString(obj){
-    if (obj instanceof Array){
-        var objs = [];
-        for (var i in obj)
-            objs.push(toString(obj[i]));
-        return "[" + objs.join(", ") + "]";
-    }
-
-    if (obj instanceof Object){
-        var objs = [];
-        for (var i in obj)
-            objs.push([i + ": " + toString(obj[i])]);
-        return "{" + objs.join(", ") + "}";
-    }
-    
-    return obj.toString();
-}
-
 function round(f, p){
     if (p == undefined)
         p = 2;
@@ -223,9 +190,7 @@ function wordid(i){
 
 function putWords(words){
     for (var i in words){
-        var word = words[i];
-        var e = document.getElementById(wordid(i));
-        e.value = word;
+        $("#word_"+i).val(words[i]);
     }
 }
 
