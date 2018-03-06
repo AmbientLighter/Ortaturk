@@ -13,7 +13,7 @@ const renderRows = ({ rows }) =>
     </tr>
   ));
 
-const renderReport = ({ report }) => (
+const renderReport = ({ rows, report }) => rows.length > 0 ? (
   <tr>
     <td>Отчёт</td>
     {report &&
@@ -30,9 +30,9 @@ const renderReport = ({ report }) => (
           )
       )}
   </tr>
-);
+) : null;
 
-let WordTable = ({ charCount, rows, report, winner, languages }) => rows.length > 0 ? (
+let WordTable = ({ charCount, rows, report, winner, languages }) => (
   <div>
     <p>
       <strong>Победитель: </strong>
@@ -57,10 +57,10 @@ let WordTable = ({ charCount, rows, report, winner, languages }) => rows.length 
       </thead>
       <tbody>
         {renderRows({ rows })}
-        {renderReport({ report })}
+        {renderReport({ rows, report })}
       </tbody>
     </table>
   </div>
-) : null;
+);
 
 export default connect(tableSelector)(WordTable);
