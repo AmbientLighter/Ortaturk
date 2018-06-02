@@ -5,7 +5,6 @@ import { PersistGate } from "redux-persist/integration/react";
 import configureStore from "./configureStore";
 import LanguagesList from "./LanguagesList";
 import WordTable from "./WordTable";
-import DetailsDialog from "./DetailsDialog";
 
 class App extends Component {
   constructor(props) {
@@ -24,7 +23,6 @@ class App extends Component {
               <div className="col-sm-12">
                 <LanguagesList />
                 <WordTable />
-                <DetailsDialog />
               </div>
             </div>
           </div>

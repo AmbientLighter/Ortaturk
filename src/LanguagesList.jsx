@@ -1,7 +1,7 @@
-import React from "react";
-import { Field, reduxForm } from "redux-form";
+import React from 'react';
+import { Field, reduxForm } from 'redux-form';
 
-import Languages from "./languages.json";
+import Languages from './languages.json';
 
 const renderRow = (Language, index) => (
   <tr key={index}>
@@ -27,10 +27,19 @@ let LanguagesList = props => (
         <th>Слово</th>
       </tr>
     </thead>
-    <tbody>{Languages.map(renderRow)}</tbody>
+    <tbody>
+      {Languages.map(renderRow)}
+      <tr>
+        <td colSpan={3}>
+          <button type="button" class="btn btn-default" onClick={props.reset}>
+            Очистить
+          </button>
+        </td>
+      </tr>
+    </tbody>
   </table>
 );
 
-LanguagesList = reduxForm({ form: "LanguagesList" })(LanguagesList);
+LanguagesList = reduxForm({ form: 'LanguagesList' })(LanguagesList);
 
 export default LanguagesList;
