@@ -31,7 +31,7 @@ let LanguagesList = props => (
       {Languages.map(renderRow)}
       <tr>
         <td colSpan={3}>
-          <button type="button" class="btn btn-default" onClick={props.reset}>
+          <button type="button" className="btn btn-default" onClick={props.reset}>
             Очистить
           </button>
         </td>
