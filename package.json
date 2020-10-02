@@ -1,7 +1,7 @@
 {
   "name": "ortaturk",
   "version": "0.1.0",
-  "homepage": "http://ambientlighter.github.io/ortaturk/",
+  "homepage": "http://ambientlighter.github.io/Ortaturk/",
   "private": true,
   "dependencies": {
     "gh-pages": "^2.0.1",
