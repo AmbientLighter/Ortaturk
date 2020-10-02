@@ -1,15 +1,15 @@
 {
   "files": {
-    "main.css": "/ortaturk/static/css/main.a2b7b0b6.chunk.css",
-    "main.js": "/ortaturk/static/js/main.69ff9d90.chunk.js",
-    "main.js.map": "/ortaturk/static/js/main.69ff9d90.chunk.js.map",
-    "runtime~main.js": "/ortaturk/static/js/runtime~main.597ca6b1.js",
-    "runtime~main.js.map": "/ortaturk/static/js/runtime~main.597ca6b1.js.map",
-    "static/js/2.5ac0c583.chunk.js": "/ortaturk/static/js/2.5ac0c583.chunk.js",
-    "static/js/2.5ac0c583.chunk.js.map": "/ortaturk/static/js/2.5ac0c583.chunk.js.map",
-    "index.html": "/ortaturk/index.html",
-    "precache-manifest.a0d90ecb2495488ab08ad7b304a4b2d2.js": "/ortaturk/precache-manifest.a0d90ecb2495488ab08ad7b304a4b2d2.js",
-    "service-worker.js": "/ortaturk/service-worker.js",
-    "static/css/main.a2b7b0b6.chunk.css.map": "/ortaturk/static/css/main.a2b7b0b6.chunk.css.map"
+    "main.css": "/Ortaturk/static/css/main.a2b7b0b6.chunk.css",
+    "main.js": "/Ortaturk/static/js/main.e37ac49c.chunk.js",
+    "main.js.map": "/Ortaturk/static/js/main.e37ac49c.chunk.js.map",
+    "runtime~main.js": "/Ortaturk/static/js/runtime~main.ded3b525.js",
+    "runtime~main.js.map": "/Ortaturk/static/js/runtime~main.ded3b525.js.map",
+    "static/js/2.5ac0c583.chunk.js": "/Ortaturk/static/js/2.5ac0c583.chunk.js",
+    "static/js/2.5ac0c583.chunk.js.map": "/Ortaturk/static/js/2.5ac0c583.chunk.js.map",
+    "index.html": "/Ortaturk/index.html",
+    "precache-manifest.d5f62a3798037d3f0674a88e0ffd200e.js": "/Ortaturk/precache-manifest.d5f62a3798037d3f0674a88e0ffd200e.js",
+    "service-worker.js": "/Ortaturk/service-worker.js",
+    "static/css/main.a2b7b0b6.chunk.css.map": "/Ortaturk/static/css/main.a2b7b0b6.chunk.css.map"
   }
 }
