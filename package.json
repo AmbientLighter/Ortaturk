@@ -1,6 +1,5 @@
 {
   "name": "ortaturk",
-  "homepage": "http://ortaturk.turkology.ml/",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
